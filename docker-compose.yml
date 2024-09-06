@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+
+  publisher-service:
+    build: ./node-pub
+    ports:
+      - "3001:3001"
+    depends_on:
+      - redis
+    networks:
+      - dapr-network
+
+  dapr-publisher:
+    image: "daprio/daprd:edge"
+    command: ["./daprd","-app-id", "publisher","-app-port", "3001","-placement-host-address", "placement:50006","-dapr-http-port", "3500","-components-path", "/components" ]
+    volumes:
+      - "./components/:/components"
+    depends_on:
+      - publisher-service
+    network_mode: "service:publisher-service"
+
+  subscriber-service:
+    build: ./node-subscriber
+    ports:
+      - "3002:3002"
+    depends_on:
+      - redis
+    networks:
+      - dapr-network
+
+  dapr-sub:
+    image: "daprio/daprd:edge"
+    command: ["./daprd",
+               "-app-id", "subscriber",
+               "-app-port", "3002",
+               "-placement-host-address", "placement:50006",
+               "-dapr-http-port", "3500",
+               "-components-path", "/components" ]
+    volumes:
+      - "./components/:/components"
+    depends_on:
+      - subscriber-service
+    network_mode: "service:subscriber-service"
+
+  # Redis service
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - dapr-network
+
+  placement:
+    image: "daprio/dapr"
+    command: ["./placement", "-port", "50006"]
+    ports:
+      - "50006:50006"
+    networks:
+      - dapr-network
+
+networks:
+  dapr-network:
+    driver: bridge

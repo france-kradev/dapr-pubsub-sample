@@ -1,0 +1,19 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@dapr/dapr": "^3.3.1",
+    "axios": "^1.7.7",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "isomorphic-fetch": "^2.2.1"
+  }
+}
